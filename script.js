@@ -296,18 +296,124 @@ async function excluirCliente(id) {
     }
 }
 
-
 /*
 ========================================
-8. EVENTOS E INICIALIZAÇÃO
+8. PARALLAX 3D DO FUNDO
 ========================================
 */
 
-// Escuta o evento submit do formulário.
-// Quando o usuário clicar em "Cadastrar Cliente",
-// a função cadastrarCliente será executada.
+// Respeita a preferência de movimento reduzido.
+const movimentoReduzido = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+);
+
+// Verifica se o dispositivo permite mouse com hover.
+const possuiMouse = window.matchMedia(
+    "(hover: hover) and (pointer: fine)"
+);
+
+if (!movimentoReduzido.matches && possuiMouse.matches) {
+    let posicaoX = 0;
+    let posicaoY = 0;
+
+    let atualX = 0;
+    let atualY = 0;
+
+    let animacaoAtiva = false;
+
+    // Atualiza suavemente as variáveis CSS.
+    function animarParallax() {
+        atualX += (posicaoX - atualX) * 0.07;
+        atualY += (posicaoY - atualY) * 0.07;
+
+        document.documentElement.style.setProperty(
+            "--mouse-x",
+            `${atualX.toFixed(2)}px`
+        );
+
+        document.documentElement.style.setProperty(
+            "--mouse-y",
+            `${atualY.toFixed(2)}px`
+        );
+
+        const diferencaX = Math.abs(posicaoX - atualX);
+        const diferencaY = Math.abs(posicaoY - atualY);
+
+        if (diferencaX > 0.1 || diferencaY > 0.1) {
+            requestAnimationFrame(animarParallax);
+        } else {
+            animacaoAtiva = false;
+        }
+    }
+
+    // Captura a posição do cursor.
+    window.addEventListener("pointermove", (evento) => {
+        const centroX = window.innerWidth / 2;
+        const centroY = window.innerHeight / 2;
+
+        const normalizadoX =
+            (evento.clientX - centroX) / centroX;
+
+        const normalizadoY =
+            (evento.clientY - centroY) / centroY;
+
+        posicaoX = normalizadoX * 35;
+        posicaoY = normalizadoY * 35;
+
+        if (!animacaoAtiva) {
+            animacaoAtiva = true;
+            requestAnimationFrame(animarParallax);
+        }
+    }, { passive: true });
+}
+
+/*
+========================================
+9. EFEITO 3D NOS PAINÉIS
+========================================
+*/
+
+if (!movimentoReduzido.matches && possuiMouse.matches) {
+    const paineis = document.querySelectorAll(
+        "main > section"
+    );
+
+    paineis.forEach((painel) => {
+        painel.addEventListener("pointermove", (evento) => {
+            const area = painel.getBoundingClientRect();
+
+            const x = (evento.clientX - area.left) / area.width;
+            const y = (evento.clientY - area.top) / area.height;
+
+            const rotacaoX = (0.5 - y) * 3;
+            const rotacaoY = (x - 0.5) * 3;
+
+            painel.style.setProperty(
+                "--rotate-x",
+                `${rotacaoX.toFixed(2)}deg`
+            );
+
+            painel.style.setProperty(
+                "--rotate-y",
+                `${rotacaoY.toFixed(2)}deg`
+            );
+        });
+
+        painel.addEventListener("pointerleave", () => {
+            painel.style.setProperty("--rotate-x", "0deg");
+            painel.style.setProperty("--rotate-y", "0deg");
+        });
+    });
+}
+
+/*
+========================================
+10. EVENTOS E INICIALIZAÇÃO
+========================================
+*/
+
+// Escuta o envio do formulário.
 formulario.addEventListener("submit", cadastrarCliente);
 
-// Executa a busca inicial de clientes.
-// Assim, os registros aparecem ao abrir a página.
+// Busca os clientes assim que a página carregar.
 listarClientes();
