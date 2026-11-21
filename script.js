@@ -5,159 +5,117 @@
 ========================================
 */
 
-// URL da API de sua preferencia.
-// Substitua SEU_TOKEN pelo token gerado no site.
-// "clientes" é o nome da coleção utilizada.
+// Endereço da API Beeceptor.
 const API_URL = "https://ca9cf6fbde3b0a705399.free.beeceptor.com/api/users";
 
-
 /*
 ========================================
-2. CAPTURA DOS ELEMENTOS DO DOM
+2. ELEMENTOS DO HTML
 ========================================
 */
 
-// Captura o formulário de cadastro.
+// Capturamos os elementos que serão utilizados.
 const formulario = document.getElementById("form-cliente");
-
-// Captura os campos de nome e e-mail.
 const inputNome = document.getElementById("nome");
 const inputEmail = document.getElementById("email");
-
-// Captura a lista onde os clientes serão exibidos.
 const listaClientes = document.getElementById("lista-clientes");
-
-// Captura o elemento responsável pelas mensagens.
 const mensagem = document.getElementById("mensagem");
-
-// Captura a mensagem de lista vazia.
 const listaVazia = document.getElementById("lista-vazia");
 
-
 /*
 ========================================
-3. FUNÇÃO PARA EXIBIR MENSAGENS
+3. EXIBIR MENSAGENS
 ========================================
 */
 
-// Exibe mensagens de sucesso ou erro na interface.
-function exibirMensagem(texto) {
-
-    // Atualiza o conteúdo do elemento HTML.
+// Exibe uma mensagem de sucesso ou erro.
+function exibirMensagem(texto, tipo = "sucesso") {
     mensagem.textContent = texto;
+    mensagem.dataset.tipo = tipo;
 }
 
-
 /*
 ========================================
-4. GET - BUSCAR CLIENTES
+4. GET - LISTAR CLIENTES
 ========================================
 */
 
-// Função assíncrona responsável por buscar
-// todos os clientes cadastrados na API.
 async function listarClientes() {
-
     try {
-
-        // Envia uma requisição HTTP GET para a API.
-        // O await aguarda a resposta do servidor.
+        // Busca os clientes na API.
         const resposta = await fetch(API_URL, {
             method: "GET"
         });
 
-        // Verifica se a resposta HTTP indica sucesso.
-        // resposta.ok é true para status entre 200 e 299.
+        // Verifica se a requisição funcionou.
         if (!resposta.ok) {
-            throw new Error(
-                `Erro ao buscar clientes: ${resposta.status}`
-            );
+            throw new Error("Erro ao buscar clientes");
         }
 
-        // Converte o JSON recebido em dados JavaScript.
-        // Neste caso, esperamos um array de clientes.
+        // Converte o JSON recebido em um array.
         const clientes = await resposta.json();
 
-        // Mostra os dados recebidos no console.
-        console.log("Clientes recebidos:", clientes);
-
-        // Envia os clientes para a função que
-        // atualiza a listagem no HTML.
+        // Atualiza a lista no HTML.
         renderizarClientes(clientes);
 
     } catch (erro) {
-
-        // Exibe o erro no console para depuração.
-        console.error("Erro ao listar clientes:", erro);
-
-        // Informa ao usuário que ocorreu um erro.
-        exibirMensagem(
-            "Não foi possível carregar os clientes."
-        );
+        console.error(erro);
+        exibirMensagem("Erro ao carregar clientes.", "erro");
     }
 }
 
-
 /*
 ========================================
-5. RENDERIZAÇÃO DOS CLIENTES NO DOM
+5. MOSTRAR CLIENTES NA TELA
 ========================================
 */
 
-// Recebe o array de clientes retornado pela API.
 function renderizarClientes(clientes) {
 
-    // Remove os elementos da listagem anterior.
-    // Isso evita duplicar clientes na tela.
+    // Limpa a lista antes de renderizar novamente.
     listaClientes.innerHTML = "";
 
-    // Exibe a mensagem de lista vazia somente
-    // quando não existem clientes cadastrados.
+    // Exibe a mensagem caso não existam clientes.
     listaVazia.hidden = clientes.length > 0;
 
-    // Percorre cada cliente do array.
+    // Percorre todos os clientes recebidos.
     clientes.forEach((cliente) => {
 
-        // Cria um elemento <li> para o cliente.
+        // Cria o elemento da lista.
         const item = document.createElement("li");
+        item.classList.add("cliente-card");
 
-        // Cria um elemento para exibir o nome.
+        // Cria a área das informações.
+        const informacoes = document.createElement("div");
+        informacoes.classList.add("cliente-info");
+
+        // Cria o nome.
         const nome = document.createElement("strong");
+        nome.textContent = cliente.name;
 
-        // Insere o nome recebido da API.
-        nome.textContent = cliente.nome;
-
-        // Cria um parágrafo para o e-mail.
+        // Cria o e-mail.
         const email = document.createElement("p");
-
-        // Insere o e-mail recebido da API.
         email.textContent = cliente.email;
 
         // Cria o botão de exclusão.
         const botaoExcluir = document.createElement("button");
-
-        // Define o tipo do botão.
+        botaoExcluir.classList.add("btn-excluir");
         botaoExcluir.type = "button";
-
-        // Define o texto apresentado no botão.
         botaoExcluir.textContent = "Excluir";
 
-        // Adiciona um evento de clique ao botão.
+        // Quando clicar, exclui o cliente pelo ID.
         botaoExcluir.addEventListener("click", () => {
-
-            // Chama a função de exclusão passando
-            // o identificador único do cliente.
-            excluirCliente(cliente._id);
+            excluirCliente(cliente.id);
         });
 
-        // Adiciona os elementos ao <li>.
-        item.append(nome, email, botaoExcluir);
+        // Organiza os elementos.
+        informacoes.append(nome, email);
+        item.append(informacoes, botaoExcluir);
 
-        // Insere o <li> na lista do HTML.
+        // Adiciona o cliente à lista.
         listaClientes.appendChild(item);
     });
 }
-
 
 /*
 ========================================
@@ -165,87 +123,56 @@ function renderizarClientes(clientes) {
 ========================================
 */
 
-// Função executada quando o formulário é enviado.
 async function cadastrarCliente(evento) {
 
-    // Impede o comportamento padrão do formulário,
-    // que seria recarregar a página.
+    // Impede o formulário de recarregar a página.
     evento.preventDefault();
 
-    // Obtém os valores digitados nos campos.
-    // trim() remove espaços no início e no final.
+    // Captura os valores digitados.
     const nome = inputNome.value.trim();
     const email = inputEmail.value.trim();
 
     // Verifica se os campos estão preenchidos.
     if (!nome || !email) {
-
-        exibirMensagem("Preencha todos os campos.");
-
-        // Interrompe a execução da função.
+        exibirMensagem("Preencha todos os campos.", "erro");
         return;
     }
 
-    // Cria um objeto com os dados do cliente.
-    // Esse objeto será enviado para a API.
+    // Cria o objeto que será enviado para a API.
     const novoCliente = {
-        nome: nome,
+        name: nome,
         email: email
     };
 
     try {
-
-        // Envia uma requisição HTTP POST.
+        // Envia os dados utilizando POST.
         const resposta = await fetch(API_URL, {
-
-            // Define o método de criação.
             method: "POST",
-
-            // Informa que os dados enviados
-            // estão no formato JSON.
             headers: {
                 "Content-Type": "application/json"
             },
-
-            // Converte o objeto JavaScript
-            // em uma string JSON.
             body: JSON.stringify(novoCliente)
         });
 
-        // Verifica se o cadastro foi realizado.
+        // Verifica se o cadastro funcionou.
         if (!resposta.ok) {
-            throw new Error(
-                `Erro ao cadastrar: ${resposta.status}`
-            );
+            throw new Error("Erro ao cadastrar cliente");
         }
 
-        // Exibe o resultado no console.
-        console.log("Cliente cadastrado com sucesso!");
-
-        // Limpa os campos do formulário.
+        // Limpa o formulário.
         formulario.reset();
 
-        // Informa o sucesso ao usuário.
-        exibirMensagem(
-            "Cliente cadastrado com sucesso!"
-        );
+        // Exibe a mensagem de sucesso.
+        exibirMensagem("Cliente cadastrado com sucesso!");
 
-        // Busca novamente os clientes na API
-        // para atualizar a listagem automaticamente.
+        // Atualiza a lista automaticamente.
         await listarClientes();
 
     } catch (erro) {
-
-        // Exibe o erro no console.
-        console.error("Erro ao cadastrar cliente:", erro);
-
-        // Exibe uma mensagem de erro na interface.
-        exibirMensagem(
-            "Não foi possível cadastrar o cliente."
-        );
+        console.error(erro);
+        exibirMensagem("Erro ao cadastrar cliente.", "erro");
     }
 }
-
 
 /*
 ========================================
@@ -253,167 +180,81 @@ async function cadastrarCliente(evento) {
 ========================================
 */
 
-// Recebe o identificador do cliente a excluir.
 async function excluirCliente(id) {
 
+    // Impede a exclusão sem identificador.
+    if (!id) {
+        exibirMensagem("Cliente sem ID.", "erro");
+        return;
+    }
+
     try {
-
-        // Envia uma requisição DELETE para a API.
-        // O ID identifica qual cliente será excluído.
+        // Envia DELETE com o ID do cliente.
         const resposta = await fetch(`${API_URL}/${id}`, {
-
-            // Define o método HTTP de exclusão.
             method: "DELETE"
         });
 
-        // Verifica se a exclusão foi bem-sucedida.
+        // Verifica se a exclusão funcionou.
         if (!resposta.ok) {
-            throw new Error(
-                `Erro ao excluir: ${resposta.status}`
-            );
+            throw new Error("Erro ao excluir cliente");
         }
 
-        // Registra a exclusão no console.
-        console.log("Cliente excluído:", id);
+        // Exibe mensagem de sucesso.
+        exibirMensagem("Exclusão solicitada com sucesso!");
 
-        // Exibe uma mensagem de sucesso.
-        exibirMensagem(
-            "Cliente excluído com sucesso!"
-        );
-
-        // Atualiza a lista após a exclusão.
+        // Atualiza a lista automaticamente.
         await listarClientes();
 
     } catch (erro) {
-
-        // Registra o erro no console.
-        console.error("Erro ao excluir cliente:", erro);
-
-        // Informa o erro ao usuário.
-        exibirMensagem(
-            "Não foi possível excluir o cliente."
-        );
+        console.error(erro);
+        exibirMensagem("Erro ao excluir cliente.", "erro");
     }
 }
 
 /*
 ========================================
-8. PARALLAX 3D DO FUNDO
+8. EFEITO PARALLAX SOMENTE NO FUNDO
 ========================================
 */
 
-// Respeita a preferência de movimento reduzido.
+// Verifica se o usuário permite animações.
 const movimentoReduzido = window.matchMedia(
     "(prefers-reduced-motion: reduce)"
 );
 
-// Verifica se o dispositivo permite mouse com hover.
-const possuiMouse = window.matchMedia(
-    "(hover: hover) and (pointer: fine)"
-);
+// Ativa o parallax somente se permitido.
+if (!movimentoReduzido.matches) {
 
-if (!movimentoReduzido.matches && possuiMouse.matches) {
-    let posicaoX = 0;
-    let posicaoY = 0;
+    // Detecta o movimento do mouse na página.
+    document.addEventListener("mousemove", (evento) => {
 
-    let atualX = 0;
-    let atualY = 0;
+        // Calcula a posição do mouse
+        // em relação ao centro da tela.
+        const x = evento.clientX - window.innerWidth / 2;
+        const y = evento.clientY - window.innerHeight / 2;
 
-    let animacaoAtiva = false;
-
-    // Atualiza suavemente as variáveis CSS.
-    function animarParallax() {
-        atualX += (posicaoX - atualX) * 0.07;
-        atualY += (posicaoY - atualY) * 0.07;
-
+        // Atualiza as variáveis CSS que
+        // movimentam somente o fundo.
         document.documentElement.style.setProperty(
             "--mouse-x",
-            `${atualX.toFixed(2)}px`
+            `${x * 0.05}px`
         );
 
         document.documentElement.style.setProperty(
             "--mouse-y",
-            `${atualY.toFixed(2)}px`
+            `${y * 0.05}px`
         );
-
-        const diferencaX = Math.abs(posicaoX - atualX);
-        const diferencaY = Math.abs(posicaoY - atualY);
-
-        if (diferencaX > 0.1 || diferencaY > 0.1) {
-            requestAnimationFrame(animarParallax);
-        } else {
-            animacaoAtiva = false;
-        }
-    }
-
-    // Captura a posição do cursor.
-    window.addEventListener("pointermove", (evento) => {
-        const centroX = window.innerWidth / 2;
-        const centroY = window.innerHeight / 2;
-
-        const normalizadoX =
-            (evento.clientX - centroX) / centroX;
-
-        const normalizadoY =
-            (evento.clientY - centroY) / centroY;
-
-        posicaoX = normalizadoX * 35;
-        posicaoY = normalizadoY * 35;
-
-        if (!animacaoAtiva) {
-            animacaoAtiva = true;
-            requestAnimationFrame(animarParallax);
-        }
-    }, { passive: true });
-}
-
-/*
-========================================
-9. EFEITO 3D NOS PAINÉIS
-========================================
-*/
-
-if (!movimentoReduzido.matches && possuiMouse.matches) {
-    const paineis = document.querySelectorAll(
-        "main > section"
-    );
-
-    paineis.forEach((painel) => {
-        painel.addEventListener("pointermove", (evento) => {
-            const area = painel.getBoundingClientRect();
-
-            const x = (evento.clientX - area.left) / area.width;
-            const y = (evento.clientY - area.top) / area.height;
-
-            const rotacaoX = (0.5 - y) * 3;
-            const rotacaoY = (x - 0.5) * 3;
-
-            painel.style.setProperty(
-                "--rotate-x",
-                `${rotacaoX.toFixed(2)}deg`
-            );
-
-            painel.style.setProperty(
-                "--rotate-y",
-                `${rotacaoY.toFixed(2)}deg`
-            );
-        });
-
-        painel.addEventListener("pointerleave", () => {
-            painel.style.setProperty("--rotate-x", "0deg");
-            painel.style.setProperty("--rotate-y", "0deg");
-        });
     });
 }
 
 /*
 ========================================
-10. EVENTOS E INICIALIZAÇÃO
+9. INICIALIZAÇÃO
 ========================================
 */
 
-// Escuta o envio do formulário.
+// Executa o cadastro ao enviar o formulário.
 formulario.addEventListener("submit", cadastrarCliente);
 
-// Busca os clientes assim que a página carregar.
+// Busca os clientes quando a página é aberta.
 listarClientes();

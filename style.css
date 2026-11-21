@@ -6,24 +6,27 @@
 */
 
 :root {
+    /* Cores do fundo */
     --bg-primary: #080b18;
     --bg-secondary: #10172d;
 
+    /* Cores de destaque */
     --accent-primary: #7c5cff;
     --accent-secondary: #24c8ff;
 
+    /* Cores dos textos */
     --text-primary: #f5f7ff;
     --text-secondary: #a6b1cc;
 
+    /* Efeito glassmorphism */
     --glass-bg: rgba(20, 27, 52, 0.66);
     --glass-border: rgba(255, 255, 255, 0.12);
 
+    /* Variáveis controladas pelo JavaScript */
     --mouse-x: 0px;
     --mouse-y: 0px;
 
-    --rotate-x: 0deg;
-    --rotate-y: 0deg;
-
+    /* Bordas */
     --radius-lg: 24px;
     --radius-md: 14px;
 }
@@ -49,13 +52,14 @@ body {
     min-height: 100vh;
 
     font-family: Inter, "Segoe UI", Arial, sans-serif;
+    line-height: 1.6;
 
     color: var(--text-primary);
     background: var(--bg-primary);
 
-    line-height: 1.6;
-
     overflow-x: hidden;
+
+    /* Organiza as camadas do fundo */
     isolation: isolate;
 }
 
@@ -65,7 +69,12 @@ body {
 ========================================
 */
 
-/* Primeira camada: luzes coloridas. */
+/*
+Primeira camada:
+gradientes coloridos que se movimentam
+conforme a posição do mouse.
+*/
+
 body::before {
     content: "";
 
@@ -101,7 +110,14 @@ body::before {
     will-change: transform;
 }
 
-/* Segunda camada: grade tecnológica. */
+/*
+Segunda camada:
+grade tecnológica com perspectiva 3D.
+
+Ela se movimenta em uma direção diferente
+da camada de gradientes, criando profundidade.
+*/
+
 body::after {
     content: "";
 
@@ -152,8 +168,8 @@ body::after {
 
 header {
     width: min(1100px, calc(100% - 40px));
-    margin: 0 auto;
 
+    margin: 0 auto;
     padding: 65px 0 35px;
 
     text-align: center;
@@ -177,6 +193,7 @@ header h1 {
 
     -webkit-background-clip: text;
     background-clip: text;
+
     color: transparent;
 
     margin-bottom: 15px;
@@ -199,18 +216,22 @@ main {
     margin: 0 auto 60px;
 
     display: grid;
+
     grid-template-columns: 0.9fr 1.1fr;
 
     align-items: start;
     gap: 28px;
-
-    perspective: 1200px;
 }
 
 /*
 ========================================
-6. PAINÉIS COM GLASSMORPHISM
+6. PAINÉIS ESTÁTICOS COM GLASSMORPHISM
 ========================================
+*/
+
+/*
+Os painéis possuem transparência e desfoque,
+mas não acompanham o movimento do mouse.
 */
 
 main > section {
@@ -230,14 +251,10 @@ main > section {
         0 20px 60px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
-    transform:
-        rotateX(var(--rotate-x))
-        rotateY(var(--rotate-y));
-
-    transform-style: preserve-3d;
+    /* Nenhuma rotação 3D nos formulários */
+    transform: none;
 
     transition:
-        transform 0.2s ease-out,
         border-color 0.3s ease,
         box-shadow 0.3s ease;
 
@@ -248,6 +265,11 @@ main > section:nth-child(2) {
     animation-delay: 0.15s;
 }
 
+/*
+Ao passar o mouse, apenas a borda e
+a sombra são alteradas.
+*/
+
 main > section:hover {
     border-color: rgba(124, 92, 255, 0.35);
 
@@ -256,6 +278,7 @@ main > section:hover {
         0 0 35px rgba(124, 92, 255, 0.08);
 }
 
+/* Reflexo suave sobre o painel */
 main > section::before {
     content: "";
 
@@ -273,6 +296,12 @@ main > section::before {
     pointer-events: none;
 }
 
+/*
+========================================
+7. TÍTULOS DAS SEÇÕES
+========================================
+*/
+
 section h2 {
     position: relative;
 
@@ -280,7 +309,6 @@ section h2 {
     font-weight: 700;
 
     margin-bottom: 26px;
-
     letter-spacing: -0.4px;
 }
 
@@ -305,7 +333,7 @@ section h2::after {
 
 /*
 ========================================
-7. FORMULÁRIO
+8. FORMULÁRIO DE CADASTRO
 ========================================
 */
 
@@ -328,8 +356,15 @@ label {
     color: #d9e0f4;
 }
 
+/*
+========================================
+9. CAMPOS DO FORMULÁRIO
+========================================
+*/
+
 input {
     width: 100%;
+
     padding: 14px 16px;
 
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -368,7 +403,7 @@ input:focus {
 
 /*
 ========================================
-8. BOTÃO DE CADASTRO
+10. CONFIGURAÇÃO DOS BOTÕES
 ========================================
 */
 
@@ -377,8 +412,25 @@ button {
     cursor: pointer;
 }
 
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+button:focus-visible {
+    outline: 3px solid #78d8ff;
+    outline-offset: 4px;
+}
+
+/*
+========================================
+11. BOTÃO CADASTRAR CLIENTE
+========================================
+*/
+
 form button {
     width: 100%;
+
     padding: 15px 20px;
 
     border: none;
@@ -418,19 +470,9 @@ form button:active:not(:disabled) {
     transform: translateY(0);
 }
 
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-button:focus-visible {
-    outline: 3px solid #78d8ff;
-    outline-offset: 4px;
-}
-
 /*
 ========================================
-9. MENSAGENS DE SUCESSO E ERRO
+12. MENSAGENS DE SUCESSO E ERRO
 ========================================
 */
 
@@ -455,118 +497,160 @@ button:focus-visible {
 
 /*
 ========================================
-10. LISTAGEM DE CLIENTES
+13. LISTAGEM DOS CLIENTES
 ========================================
 */
 
 #lista-clientes {
     display: flex;
     flex-direction: column;
+
     gap: 14px;
 
     list-style: none;
+
+    padding: 0;
+    margin: 0;
 }
 
-.cliente-card {
+/*
+Cada cliente aparece dentro de um cartão.
+
+O cartão não acompanha o mouse.
+*/
+
+#lista-clientes .cliente-card {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
-    gap: 15px;
+    gap: 20px;
 
-    padding: 18px;
+    width: 100%;
+    padding: 20px;
 
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 16px;
 
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(255, 255, 255, 0.045);
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.12);
 
     transition:
-        transform 0.25s ease,
-        background 0.25s ease,
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 
-    animation:
-        aparecerCliente 0.5s ease both;
-
-    animation-delay: var(--delay, 0ms);
+    animation: aparecerCliente 0.5s ease both;
 }
 
-.cliente-card:hover {
-    transform: translateY(-4px);
+#lista-clientes .cliente-card:hover {
+    background: rgba(124, 92, 255, 0.10);
 
-    background: rgba(124, 92, 255, 0.08);
-
-    border-color: rgba(124, 92, 255, 0.28);
+    border-color: rgba(124, 92, 255, 0.35);
 
     box-shadow:
         0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
-.cliente-info {
-    min-width: 0;
+/*
+========================================
+14. INFORMAÇÕES DO CLIENTE
+========================================
+*/
+
+#lista-clientes .cliente-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
     flex: 1;
+    min-width: 0;
 }
 
-.cliente-info strong {
+#lista-clientes .cliente-info strong {
     display: block;
 
-    font-size: 1rem;
-    font-weight: 650;
+    color: #ffffff;
 
-    color: #f5f7ff;
+    font-size: 1rem;
+    font-weight: 600;
 
     overflow-wrap: anywhere;
 }
 
-.cliente-info p {
-    margin-top: 4px;
+#lista-clientes .cliente-info p {
+    margin: 0;
 
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: #a6b1cc;
+
+    font-size: 0.9rem;
 
     overflow-wrap: anywhere;
 }
 
 /*
 ========================================
-11. BOTÃO EXCLUIR
+15. BOTÃO EXCLUIR
 ========================================
 */
 
-.btn-excluir {
+#lista-clientes .btn-excluir {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
     flex-shrink: 0;
 
-    padding: 9px 14px;
+    width: auto;
+    min-width: 90px;
 
-    border: 1px solid rgba(255, 95, 120, 0.22);
+    padding: 10px 16px;
+
+    border: 1px solid rgba(255, 90, 110, 0.35);
     border-radius: 10px;
 
-    color: #ff9bac;
+    background: rgba(255, 65, 95, 0.10);
 
-    background: rgba(255, 65, 95, 0.08);
+    color: #ff8fa3;
 
-    font-size: 0.82rem;
+    font-family: inherit;
+    font-size: 0.85rem;
     font-weight: 600;
+
+    cursor: pointer;
 
     transition:
         background 0.25s ease,
         transform 0.25s ease,
-        border-color 0.25s ease;
+        box-shadow 0.25s ease;
 }
 
-.btn-excluir:hover:not(:disabled) {
+#lista-clientes .btn-excluir:hover:not(:disabled) {
+    background: rgba(255, 65, 95, 0.22);
+
+    border-color: rgba(255, 90, 110, 0.65);
+
+    color: #ffffff;
+
     transform: translateY(-2px);
 
-    background: rgba(255, 65, 95, 0.17);
+    box-shadow:
+        0 6px 20px rgba(255, 65, 95, 0.15);
+}
 
-    border-color: rgba(255, 95, 120, 0.5);
+#lista-clientes .btn-excluir:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /*
 ========================================
-12. LISTA VAZIA
+16. MENSAGEM DE LISTA VAZIA
 ========================================
 */
 
@@ -591,7 +675,7 @@ button:focus-visible {
 
 /*
 ========================================
-13. RODAPÉ
+17. RODAPÉ
 ========================================
 */
 
@@ -606,10 +690,11 @@ footer {
 
 /*
 ========================================
-14. ANIMAÇÕES
+18. ANIMAÇÕES DE ENTRADA
 ========================================
 */
 
+/* Entrada do cabeçalho */
 @keyframes aparecer {
     from {
         opacity: 0;
@@ -622,6 +707,7 @@ footer {
     }
 }
 
+/* Entrada dos painéis, sem rotação */
 @keyframes subir {
     from {
         opacity: 0;
@@ -634,21 +720,22 @@ footer {
     }
 }
 
+/* Entrada dos clientes, sem efeito 3D */
 @keyframes aparecerCliente {
     from {
         opacity: 0;
-        transform: translateY(15px) scale(0.97);
+        transform: translateY(15px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
 /*
 ========================================
-15. RESPONSIVIDADE
+19. RESPONSIVIDADE PARA TABLETS
 ========================================
 */
 
@@ -667,6 +754,12 @@ footer {
     }
 }
 
+/*
+========================================
+20. RESPONSIVIDADE PARA CELULARES
+========================================
+*/
+
 @media (max-width: 480px) {
     main,
     header {
@@ -682,20 +775,25 @@ footer {
         border-radius: 18px;
     }
 
-    .cliente-card {
-        align-items: stretch;
+    #lista-clientes .cliente-card {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .btn-excluir {
+    #lista-clientes .btn-excluir {
         width: 100%;
     }
 }
 
 /*
 ========================================
-16. ACESSIBILIDADE
+21. ACESSIBILIDADE
 ========================================
+*/
+
+/*
+Desativa as animações quando o usuário
+configura o sistema para reduzir movimentos.
 */
 
 @media (prefers-reduced-motion: reduce) {
@@ -706,10 +804,6 @@ footer {
         animation-delay: 0ms !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
-    }
-
-    main > section {
-        transform: none !important;
     }
 
     body::before,
